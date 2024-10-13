@@ -1,223 +1,144 @@
 <template>
   <div id="app" class="container mx-auto p-4">
-    <!-- Winners Block -->
-    <div class="mb-8 bg-white shadow-md rounded-lg p-4">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold">Winners</h2>
-        <button
-          @click="selectNewWinner"
-          :disabled="isNewWinnerDisabled"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          New winner
-        </button>
-      </div>
-      <div v-if="winners.length" class="flex space-x-2">
-        <div
-          v-for="winner in winners"
-          :key="winner.id"
-          class="bg-gray-100 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
-        >
-          {{ winner.name }}
-          <button @click="removeWinner(winner.id)" class="ml-2 text-red-500">
-            &times;
-          </button>
-        </div>
-      </div>
-    </div>
+    <winners-list-component
+      :winners="winners"
+      :is-new-winner-disabled="isNewWinnerDisabled"
+      @select-new-winner="selectNewWinner"
+      @remove-winner="removeWinner"
+    />
 
-    <!-- Registration Form Block -->
-    <div class="mb-8 bg-white shadow-md rounded-lg p-4">
-      <h2 class="text-xl font-bold mb-4">REGISTER FORM</h2>
-      <p class="text-gray-600 mb-4">Please fill in all the fields.</p>
-      <form @submit.prevent="submitForm" class="space-y-4">
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-          <input
-            v-model="form.name"
-            type="text"
-            id="name"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          >
-        </div>
-        <div>
-          <label for="dateOfBirth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-          <input
-            v-model="form.dateOfBirth"
-            type="date"
-            id="dateOfBirth"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          >
-        </div>
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-          <input
-            v-model="form.email"
-            type="email"
-            id="email"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          >
-        </div>
-        <div>
-          <label for="phone" class="block text-sm font-medium text-gray-700">Phone number</label>
-          <input
-            v-model="form.phone"
-            type="tel"
-            id="phone"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          >
-        </div>
-        <div>
-          <button
-            type="submit"
-            class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Save
-          </button>
-        </div>
-      </form>
+    <registration-form-component @submit="addParticipant" />
+
+    <participants-table-component
+      :participants="participants"
+      @edit="openEditModal"
+      @delete="openDeleteModal"
+    />
+
+    <!-- Модальне вікно для редагування -->
+    <div
+      v-if="isEditModalOpen"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"
+    >
       <div
-        v-if="errors.length"
-        class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-        role="alert"
+        class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white"
       >
-        <strong class="font-bold">Please correct the following error(s):</strong>
-        <ul class="mt-2 list-disc list-inside">
-          <li v-for="error in errors" :key="error">{{ error }}</li>
-        </ul>
+        <h2 class="text-lg font-bold mb-4">Edit Participant</h2>
+        <registration-form-component
+          :initial-data="currentParticipant"
+          @submit="updateParticipant"
+        />
+        <base-button-component @click="closeEditModal" class="mt-4"
+          >Close</base-button-component
+        >
       </div>
     </div>
 
-    <!-- Participants List Block -->
-    <div class="bg-white shadow-md rounded-lg p-4">
-      <h2 class="text-xl font-bold mb-4">Participants</h2>
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date of Birth</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone number</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr
-            v-for="(participant, index) in participants"
-            :key="participant.id"
+    <!-- Модальне вікно для видалення -->
+    <div
+      v-if="isDeleteModalOpen"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"
+    >
+      <div
+        class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white"
+      >
+        <h2 class="text-lg font-bold mb-4">Confirm Deletion</h2>
+        <p>
+          Are you sure you want to delete participant "{{
+            currentParticipant?.name
+          }}", {{ currentParticipant?.email }}?
+        </p>
+        <div class="mt-4 flex justify-end space-x-2">
+          <base-button-component @click="confirmDelete"
+            >Yes</base-button-component
           >
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ index + 1 }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ participant.name }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ participant.dateOfBirth }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ participant.email }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ participant.phone }}</td>
-          </tr>
-        </tbody>
-      </table>
+          <base-button-component @click="closeDeleteModal" variant="secondary"
+            >No</base-button-component
+          >
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue'
-
-interface Participant {
-  id: number
-  name: string
-  dateOfBirth: string
-  email: string
-  phone: string
-}
+import {
+  defineComponent,
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  watch,
+} from 'vue'
+import type { Participant } from '@/types'
+import WinnersListComponent from './components/winners-list-component.vue'
+import RegistrationFormComponent from './components/registration-form-component.vue'
+import ParticipantsTableComponent from './components/participants-table-component.vue'
+import BaseButtonComponent from './components/base-button-component.vue'
 
 export default defineComponent({
   name: 'App',
+  components: {
+    WinnersListComponent,
+    RegistrationFormComponent,
+    ParticipantsTableComponent,
+    BaseButtonComponent,
+  },
   setup() {
-    const participants = ref<Participant[]>([
-      {
-        id: 1,
-        name: 'John Doe',
-        dateOfBirth: '1990-01-01',
-        email: 'john@example.com',
-        phone: '1234567890',
-      },
-      {
-        id: 2,
-        name: 'Jane Smith',
-        dateOfBirth: '1985-05-15',
-        email: 'jane@example.com',
-        phone: '9876543210',
-      },
-      {
-        id: 3,
-        name: 'Bob Johnson',
-        dateOfBirth: '1995-12-31',
-        email: 'bob@example.com',
-        phone: '5555555555',
-      },
-    ])
+    const participants = ref<Participant[]>([])
     const winners = ref<Participant[]>([])
-    const errors = ref<string[]>([])
-
-    const form = ref({
-      name: '',
-      dateOfBirth: '',
-      email: '',
-      phone: '',
-    })
+    const isEditModalOpen = ref(false)
+    const isDeleteModalOpen = ref(false)
+    const currentParticipant = ref<Participant | null>(null)
 
     const isNewWinnerDisabled = computed(() => {
       return winners.value.length >= 3 || participants.value.length === 0
     })
 
-    const validateForm = (): string[] => {
-      const newErrors: string[] = []
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      const phoneRegex = /^\d{10}$/
-
-      if (!form.value.name) newErrors.push('Name is required')
-      if (!form.value.dateOfBirth) newErrors.push('Date of Birth is required')
-      if (!emailRegex.test(form.value.email)) newErrors.push('Invalid email format')
-      if (!phoneRegex.test(form.value.phone)) newErrors.push('Invalid phone number format')
-
-      const today = new Date()
-      const birthDate = new Date(form.value.dateOfBirth)
-      
-      if (birthDate > today) {
-        newErrors.push('Date of Birth cannot be in the future')
-      }
-      
-      const maxAge = new Date()
-      maxAge.setFullYear(maxAge.getFullYear() - 150)
-      if (birthDate < maxAge) {
-        newErrors.push('Date of Birth cannot be more than 150 years ago')
-      }
-
-      return newErrors
-    }
-
-    const submitForm = () => {
-      errors.value = validateForm()
-      if (errors.value.length === 0) {
-        participants.value.push({
-          ...form.value,
-          id: Date.now(),
-        })
-        resetForm()
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeEditModal()
+        closeDeleteModal()
       }
     }
 
-    const resetForm = () => {
-      form.value = {
-        name: '',
-        dateOfBirth: '',
-        email: '',
-        phone: '',
+    onMounted(() => {
+      window.addEventListener('keydown', handleKeyDown)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('keydown', handleKeyDown)
+    })
+
+    const loadParticipants = () => {
+      const savedParticipants = localStorage.getItem('participants')
+      if (savedParticipants) {
+        participants.value = JSON.parse(savedParticipants)
       }
-      errors.value = []
+    }
+
+    const saveParticipants = () => {
+      localStorage.setItem('participants', JSON.stringify(participants.value))
+    }
+
+    onMounted(() => {
+      loadParticipants()
+    })
+
+    watch(
+      participants,
+      () => {
+        saveParticipants()
+      },
+      { deep: true },
+    )
+
+    const addParticipant = (newParticipant: Participant) => {
+      if (participants.value.some(p => p.email === newParticipant.email)) {
+        alert('A participant with this email already exists')
+        return
+      }
+      participants.value.push(newParticipant)
     }
 
     const selectNewWinner = () => {
@@ -239,16 +160,70 @@ export default defineComponent({
       }
     }
 
+    const openEditModal = (participant: Participant) => {
+      currentParticipant.value = { ...participant }
+      isEditModalOpen.value = true
+    }
+
+    const closeEditModal = () => {
+      currentParticipant.value = null
+      isEditModalOpen.value = false
+    }
+
+    const updateParticipant = (updatedParticipant: Participant) => {
+      const index = participants.value.findIndex(
+        p => p.id === updatedParticipant.id,
+      )
+      if (index !== -1) {
+        participants.value[index] = updatedParticipant
+      }
+      closeEditModal()
+    }
+
+    const openDeleteModal = (participant: Participant) => {
+      currentParticipant.value = participant
+      isDeleteModalOpen.value = true
+    }
+
+    const closeDeleteModal = () => {
+      currentParticipant.value = null
+      isDeleteModalOpen.value = false
+    }
+
+    const confirmDelete = () => {
+      if (currentParticipant.value) {
+        participants.value = participants.value.filter(
+          p => p.id !== currentParticipant.value!.id,
+        )
+      }
+      closeDeleteModal()
+    }
+
     return {
       participants,
       winners,
-      errors,
-      form,
       isNewWinnerDisabled,
-      submitForm,
+      isEditModalOpen,
+      isDeleteModalOpen,
+      currentParticipant,
+      addParticipant,
       selectNewWinner,
       removeWinner,
+      openEditModal,
+      closeEditModal,
+      updateParticipant,
+      openDeleteModal,
+      closeDeleteModal,
+      confirmDelete,
     }
   },
 })
 </script>
+
+<style lang="scss">
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+// Add any additional global styles here
+</style>
