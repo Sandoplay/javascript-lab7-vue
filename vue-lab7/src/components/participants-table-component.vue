@@ -88,7 +88,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, PropType } from 'vue'
+import { defineComponent, computed, ref, type PropType } from 'vue'
 import type { Participant } from '@/types'
 import BaseButtonComponent from './base-button-component.vue'
 import SearchBarComponent from './search-bar-component.vue'

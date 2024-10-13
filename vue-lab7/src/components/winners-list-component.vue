@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, type PropType } from 'vue'
 import type { Participant } from '@/types'
 import BaseButtonComponent from './base-button-component.vue'
 import WinnerItemComponent from './winner-item-component.vue'

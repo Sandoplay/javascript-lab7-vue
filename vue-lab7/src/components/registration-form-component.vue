@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import BaseInputComponent from './base-input-component.vue'
 import BaseButtonComponent from './base-button-component.vue'
 
