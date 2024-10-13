@@ -32,54 +32,44 @@
       <p class="text-gray-600 mb-4">Please fill in all the fields.</p>
       <form @submit.prevent="submitForm" class="space-y-4">
         <div>
-          <label for="name" class="block text-sm font-medium text-gray-700"
-            >Name</label
-          >
+          <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
           <input
+            v-model="form.name"
             type="text"
             id="name"
-            v-model="form.name"
             required
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          />
+          >
         </div>
         <div>
-          <label
-            for="dateOfBirth"
-            class="block text-sm font-medium text-gray-700"
-            >Date of Birth</label
-          >
+          <label for="dateOfBirth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
           <input
+            v-model="form.dateOfBirth"
             type="date"
             id="dateOfBirth"
-            v-model="form.dateOfBirth"
             required
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          />
+          >
         </div>
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700"
-            >Email</label
-          >
+          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
           <input
+            v-model="form.email"
             type="email"
             id="email"
-            v-model="form.email"
             required
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          />
+          >
         </div>
         <div>
-          <label for="phone" class="block text-sm font-medium text-gray-700"
-            >Phone number</label
-          >
+          <label for="phone" class="block text-sm font-medium text-gray-700">Phone number</label>
           <input
+            v-model="form.phone"
             type="tel"
             id="phone"
-            v-model="form.phone"
             required
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          />
+          >
         </div>
         <div>
           <button
@@ -95,9 +85,7 @@
         class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
         role="alert"
       >
-        <strong class="font-bold"
-          >Please correct the following error(s):</strong
-        >
+        <strong class="font-bold">Please correct the following error(s):</strong>
         <ul class="mt-2 list-disc list-inside">
           <li v-for="error in errors" :key="error">{{ error }}</li>
         </ul>
@@ -110,31 +98,11 @@
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              #
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Name
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Date of Birth
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Email
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Phone number
-            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date of Birth</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone number</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
@@ -142,23 +110,11 @@
             v-for="(participant, index) in participants"
             :key="participant.id"
           >
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {{ index + 1 }}
-            </td>
-            <td
-              class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-            >
-              {{ participant.name }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {{ participant.dateOfBirth }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {{ participant.email }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {{ participant.phone }}
-            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ index + 1 }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ participant.name }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ participant.dateOfBirth }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ participant.email }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ participant.phone }}</td>
           </tr>
         </tbody>
       </table>
