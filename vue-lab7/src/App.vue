@@ -225,5 +225,4 @@ export default defineComponent({
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-// Add any additional global styles here
 </style>
