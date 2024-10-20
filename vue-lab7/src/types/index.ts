@@ -1,7 +1,8 @@
 export interface Participant {
-    id: number;
-    name: string;
-    dateOfBirth: string;
-    email: string;
-    phone: string;
-  }
+  id: number
+  name: string
+  email: string
+  phone: string
+  dateOfBirth: string
+  winner?: boolean
+}

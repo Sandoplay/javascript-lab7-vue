@@ -54,21 +54,44 @@
           v-for="(participant, index) in filteredParticipants"
           :key="participant.id"
         >
+          >
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {{ index + 1 }}
           </td>
           <td
-            class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+            class="px-6 py-4 whitespace-nowrap text-sm font-medium"
+            :class="{
+              'text-green-900': isWinner(participant),
+              'text-gray-900': !isWinner(participant),
+            }"
           >
             {{ participant.name }}
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {{ participant.dateOfBirth }}
+          <td
+            class="px-6 py-4 whitespace-nowrap text-sm"
+            :class="{
+              'text-green-900': isWinner(participant),
+              'text-gray-500': !isWinner(participant),
+            }"
+          >
+            {{ formatDate(participant.dateOfBirth) }}
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <td
+            class="px-6 py-4 whitespace-nowrap text-sm"
+            :class="{
+              'text-green-900': isWinner(participant),
+              'text-gray-500': !isWinner(participant),
+            }"
+          >
             {{ participant.email }}
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <td
+            class="px-6 py-4 whitespace-nowrap text-sm"
+            :class="{
+              'text-green-900': isWinner(participant),
+              'text-gray-500': !isWinner(participant),
+            }"
+          >
             {{ participant.phone }}
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -101,6 +124,10 @@ export default defineComponent({
   },
   props: {
     participants: {
+      type: Array as PropType<Participant[]>,
+      required: true,
+    },
+    winners: {
       type: Array as PropType<Participant[]>,
       required: true,
     },
@@ -149,6 +176,15 @@ export default defineComponent({
       return result
     })
 
+    const isWinner = (participant: Participant) => {
+      return participant.winner
+    }
+
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString)
+      return date.toLocaleDateString()
+    }
+
     const editParticipant = (participant: Participant) => {
       emit('edit', participant)
     }
@@ -162,6 +198,8 @@ export default defineComponent({
       setSearchTerm,
       sortBy,
       getSortIcon,
+      isWinner,
+      formatDate,
       editParticipant,
       deleteParticipant,
     }

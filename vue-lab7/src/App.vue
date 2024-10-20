@@ -11,6 +11,7 @@
 
     <participants-table-component
       :participants="participants"
+      :winners="winners"
       @edit="openEditModal"
       @delete="openDeleteModal"
     />
@@ -92,7 +93,7 @@ export default defineComponent({
     const currentParticipant = ref<Participant | null>(null)
 
     const isNewWinnerDisabled = computed(() => {
-      return winners.value.length >= 3 || participants.value.length === 0
+      return winners.value.length >= 3
     })
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -133,9 +134,32 @@ export default defineComponent({
       { deep: true },
     )
 
+    const validateParticipant = (participant: Participant): boolean => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      const phoneRegex = /^\d{10}$/
+
+      if (!participant.name.trim()) return false
+      if (!participant.dateOfBirth) return false
+      if (!emailRegex.test(participant.email)) return false
+      if (!phoneRegex.test(participant.phone)) return false
+
+      const birthDate = new Date(participant.dateOfBirth)
+      const today = new Date()
+      const maxAge = new Date()
+      maxAge.setFullYear(maxAge.getFullYear() - 150)
+
+      if (birthDate > today || birthDate < maxAge) return false
+
+      return true
+    }
+
     const addParticipant = (newParticipant: Participant) => {
+      if (!validateParticipant(newParticipant)) {
+        console.error('Invalid participant data')
+        return
+      }
       if (participants.value.some(p => p.email === newParticipant.email)) {
-        alert('A participant with this email already exists')
+        console.error('A participant with this email already exists')
         return
       }
       participants.value.push(newParticipant)
@@ -143,20 +167,33 @@ export default defineComponent({
 
     const selectNewWinner = () => {
       if (!isNewWinnerDisabled.value) {
-        const randomIndex = Math.floor(
-          Math.random() * participants.value.length,
-        )
-        const winner = participants.value[randomIndex]
-        winners.value.push(winner)
-        participants.value = participants.value.filter(p => p.id !== winner.id)
+        const availableParticipants = participants.value.filter(p => !p.winner)
+        if (availableParticipants.length > 0) {
+          const randomIndex = Math.floor(
+            Math.random() * availableParticipants.length,
+          )
+          const winner = availableParticipants[randomIndex]
+          if (validateParticipant(winner)) {
+            winner.winner = true
+            winners.value.push(winner)
+          } else {
+            console.error('Selected winner is not valid')
+          }
+        }
       }
     }
 
     const removeWinner = (winnerId: number) => {
-      const winner = winners.value.find(w => w.id === winnerId)
-      if (winner) {
-        winners.value = winners.value.filter(w => w.id !== winnerId)
-        participants.value.push(winner)
+      const winnerIndex = winners.value.findIndex(w => w.id === winnerId)
+      if (winnerIndex !== -1) {
+        const removedWinner = winners.value[winnerIndex]
+        winners.value.splice(winnerIndex, 1)
+        participants.value = participants.value.map(p => {
+          if (p.id === removedWinner.id) {
+            return { ...p, winner: false }
+          }
+          return p
+        })
       }
     }
 
@@ -171,10 +208,20 @@ export default defineComponent({
     }
 
     const updateParticipant = (updatedParticipant: Participant) => {
+      if (!validateParticipant(updatedParticipant)) {
+        console.error('Invalid updated participant data')
+        return
+      }
       const index = participants.value.findIndex(
         p => p.id === updatedParticipant.id,
       )
       if (index !== -1) {
+        // Ensure email is not changed
+        const originalEmail = participants.value[index].email
+        if (updatedParticipant.email !== originalEmail) {
+          console.error('Email cannot be changed')
+          return
+        }
         participants.value[index] = updatedParticipant
       }
       closeEditModal()
@@ -192,9 +239,13 @@ export default defineComponent({
 
     const confirmDelete = () => {
       if (currentParticipant.value) {
-        participants.value = participants.value.filter(
-          p => p.id !== currentParticipant.value!.id,
-        )
+        if (validateParticipant(currentParticipant.value)) {
+          participants.value = participants.value.filter(
+            p => p.id !== currentParticipant.value!.id,
+          )
+        } else {
+          console.error('Invalid participant data for deletion')
+        }
       }
       closeDeleteModal()
     }
@@ -224,5 +275,4 @@ export default defineComponent({
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
-
 </style>
