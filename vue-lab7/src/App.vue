@@ -28,69 +28,63 @@
 
     <!-- Registration Form Block -->
     <div class="mb-8 bg-white shadow-md rounded-lg p-4">
-      <h2 class="text-xl font-bold mb-4">REGISTER FORM</h2>
-      <p class="text-gray-600 mb-4">Please fill in all the fields.</p>
-      <form @submit.prevent="submitForm" class="space-y-4">
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-          <input
-            v-model="form.name"
-            type="text"
-            id="name"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          >
-        </div>
-        <div>
-          <label for="dateOfBirth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-          <input
-            v-model="form.dateOfBirth"
-            type="date"
-            id="dateOfBirth"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          >
-        </div>
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-          <input
-            v-model="form.email"
-            type="email"
-            id="email"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          >
-        </div>
-        <div>
-          <label for="phone" class="block text-sm font-medium text-gray-700">Phone number</label>
-          <input
-            v-model="form.phone"
-            type="tel"
-            id="phone"
-            required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          >
-        </div>
-        <div>
-          <button
-            type="submit"
-            class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Save
-          </button>
-        </div>
-      </form>
-      <div
-        v-if="errors.length"
-        class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-        role="alert"
-      >
-        <strong class="font-bold">Please correct the following error(s):</strong>
-        <ul class="mt-2 list-disc list-inside">
-          <li v-for="error in errors" :key="error">{{ error }}</li>
-        </ul>
+    <h2 class="text-xl font-bold mb-4">REGISTER FORM</h2>
+    <p class="text-gray-600 mb-4">Please fill in all the fields.</p>
+    <form @submit.prevent="submitForm" class="space-y-4" novalidate>
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+        <input
+          v-model="form.name"
+          type="text"
+          id="name"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          @blur="validateField('name')"
+        >
+        <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
       </div>
-    </div>
+      <div>
+        <label for="dateOfBirth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
+        <input
+          v-model="form.dateOfBirth"
+          type="date"
+          id="dateOfBirth"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          @blur="validateField('dateOfBirth')"
+        >
+        <p v-if="errors.dateOfBirth" class="mt-1 text-sm text-red-600">{{ errors.dateOfBirth }}</p>
+      </div>
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input
+          v-model="form.email"
+          type="email"
+          id="email"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          @blur="validateField('email')"
+        >
+        <p v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email }}</p>
+      </div>
+      <div>
+        <label for="phone" class="block text-sm font-medium text-gray-700">Phone number</label>
+        <input
+          v-model="form.phone"
+          type="tel"
+          id="phone"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          @blur="validateField('phone')"
+        >
+        <p v-if="errors.phone" class="mt-1 text-sm text-red-600">{{ errors.phone }}</p>
+      </div>
+      <div>
+        <button
+          type="submit"
+          class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
 
     <!-- Participants List Block -->
     <div class="bg-white shadow-md rounded-lg p-4">
@@ -109,6 +103,7 @@
           <tr
             v-for="(participant, index) in participants"
             :key="participant.id"
+            :class="{ 'bg-green-100': isWinner(participant) }"
           >
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ index + 1 }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ participant.name }}</td>
@@ -127,6 +122,13 @@ import { defineComponent, ref, computed } from 'vue'
 
 interface Participant {
   id: number
+  name: string
+  dateOfBirth: string
+  email: string
+  phone: string
+}
+
+interface FormErrors {
   name: string
   dateOfBirth: string
   email: string
@@ -160,7 +162,12 @@ export default defineComponent({
       },
     ])
     const winners = ref<Participant[]>([])
-    const errors = ref<string[]>([])
+    const errors = ref<FormErrors>({
+      name: '',
+      dateOfBirth: '',
+      email: '',
+      phone: '',
+    })
 
     const form = ref({
       name: '',
@@ -173,35 +180,51 @@ export default defineComponent({
       return winners.value.length >= 3 || participants.value.length === 0
     })
 
-    const validateForm = (): string[] => {
-      const newErrors: string[] = []
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      const phoneRegex = /^\d{10}$/
-
-      if (!form.value.name) newErrors.push('Name is required')
-      if (!form.value.dateOfBirth) newErrors.push('Date of Birth is required')
-      if (!emailRegex.test(form.value.email)) newErrors.push('Invalid email format')
-      if (!phoneRegex.test(form.value.phone)) newErrors.push('Invalid phone number format')
-
-      const today = new Date()
-      const birthDate = new Date(form.value.dateOfBirth)
+    const validateField = (field: keyof FormErrors) => {
+      const newErrors = { ...errors.value }
       
-      if (birthDate > today) {
-        newErrors.push('Date of Birth cannot be in the future')
+      switch (field) {
+        case 'name':
+          newErrors.name = form.value.name.trim() ? '' : 'Name is required'
+          break
+        case 'dateOfBirth':
+          if (!form.value.dateOfBirth) {
+            newErrors.dateOfBirth = 'Date of Birth is required'
+          } else {
+            const birthDate = new Date(form.value.dateOfBirth)
+            const today = new Date()
+            const maxAge = new Date()
+            maxAge.setFullYear(maxAge.getFullYear() - 150)
+            
+            if (birthDate > today) {
+              newErrors.dateOfBirth = 'Date of Birth cannot be in the future'
+            } else if (birthDate < maxAge) {
+              newErrors.dateOfBirth = 'Date of Birth cannot be more than 150 years ago'
+            } else {
+              newErrors.dateOfBirth = ''
+            }
+          }
+          break
+        case 'email':
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          newErrors.email = form.value.email ? (emailRegex.test(form.value.email) ? '' : 'Invalid email format') : 'Email is required'
+          break
+        case 'phone':
+          const phoneRegex = /^\d{10}$/
+          newErrors.phone = form.value.phone ? (phoneRegex.test(form.value.phone) ? '' : 'Invalid phone number format (10 digits required)') : 'Phone number is required'
+          break
       }
       
-      const maxAge = new Date()
-      maxAge.setFullYear(maxAge.getFullYear() - 150)
-      if (birthDate < maxAge) {
-        newErrors.push('Date of Birth cannot be more than 150 years ago')
-      }
+      errors.value = newErrors
+    }
 
-      return newErrors
+    const validateForm = (): boolean => {
+      ['name', 'dateOfBirth', 'email', 'phone'].forEach(field => validateField(field as keyof FormErrors))
+      return !Object.values(errors.value).some(error => error !== '')
     }
 
     const submitForm = () => {
-      errors.value = validateForm()
-      if (errors.value.length === 0) {
+      if (validateForm()) {
         participants.value.push({
           ...form.value,
           id: Date.now(),
@@ -217,26 +240,31 @@ export default defineComponent({
         email: '',
         phone: '',
       }
-      errors.value = []
+      errors.value = {
+        name: '',
+        dateOfBirth: '',
+        email: '',
+        phone: '',
+      }
     }
 
     const selectNewWinner = () => {
       if (!isNewWinnerDisabled.value) {
-        const randomIndex = Math.floor(
-          Math.random() * participants.value.length,
-        )
-        const winner = participants.value[randomIndex]
-        winners.value.push(winner)
-        participants.value = participants.value.filter(p => p.id !== winner.id)
+        const availableParticipants = participants.value.filter(p => !isWinner(p))
+        if (availableParticipants.length > 0) {
+          const randomIndex = Math.floor(Math.random() * availableParticipants.length)
+          const winner = availableParticipants[randomIndex]
+          winners.value.push(winner)
+        }
       }
     }
 
     const removeWinner = (winnerId: number) => {
-      const winner = winners.value.find(w => w.id === winnerId)
-      if (winner) {
-        winners.value = winners.value.filter(w => w.id !== winnerId)
-        participants.value.push(winner)
-      }
+      winners.value = winners.value.filter(w => w.id !== winnerId)
+    }
+
+    const isWinner = (participant: Participant) => {
+      return winners.value.some(w => w.id === participant.id)
     }
 
     return {
@@ -245,10 +273,18 @@ export default defineComponent({
       errors,
       form,
       isNewWinnerDisabled,
+      validateField,
       submitForm,
       selectNewWinner,
       removeWinner,
+      isWinner,
     }
   },
 })
 </script>
+
+<style>
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+</style>
