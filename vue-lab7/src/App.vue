@@ -25,7 +25,7 @@
         class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white"
       >
         <h2 class="text-lg font-bold mb-4">Edit Participant</h2>
-        <registration-form-component
+        <edit-modal-component
           :initial-data="currentParticipant"
           @submit="updateParticipant"
         />
@@ -76,6 +76,7 @@ import WinnersListComponent from './components/winners-list-component.vue'
 import RegistrationFormComponent from './components/registration-form-component.vue'
 import ParticipantsTableComponent from './components/participants-table-component.vue'
 import BaseButtonComponent from './components/base-button-component.vue'
+import EditModalComponent from './components/edit-modal-component.vue'
 
 export default defineComponent({
   name: 'App',
@@ -84,6 +85,7 @@ export default defineComponent({
     RegistrationFormComponent,
     ParticipantsTableComponent,
     BaseButtonComponent,
+    EditModalComponent,
   },
   setup() {
     const participants = ref<Participant[]>([])
